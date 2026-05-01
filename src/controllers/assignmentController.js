@@ -5,6 +5,11 @@ const createAssignment = async (req, res) => {
   try {
     const { title, subject, description, dueDate } = req.body;
 
+    // ✅ Validation
+    if (!title || !subject || !description || !dueDate) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const assignment = await Assignment.create({
       title,
       subject,
@@ -18,11 +23,12 @@ const createAssignment = async (req, res) => {
   }
 };
 
-// GET
+// GET ALL
 const getAssignments = async (req, res) => {
   try {
     const assignments = await Assignment.find();
 
+    // auto update status
     const updated = assignments.map((a) => {
       if (new Date() > a.dueDate) {
         a.status = "expired";
@@ -55,7 +61,7 @@ const updateAssignment = async (req, res) => {
 const deleteAssignment = async (req, res) => {
   try {
     await Assignment.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    res.json({ message: "Assignment deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
